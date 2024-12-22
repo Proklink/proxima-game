@@ -170,19 +170,10 @@ Runner.spriteDefinition = {
     TREX: {x: 848, y: 2},
     STAR: {x: 645, y: 2}
   },
-  // HDPI: {
-  //   CACTUS_LARGE: {x: 652, y: 2},
-  //   CACTUS_SMALL: {x: 446, y: 2},
-  //   CLOUD: {x: 166, y: 2},
-  //   HORIZON: {x: 2, y: 104},
-  //   MOON: {x: 954, y: 2},
-  //   PTERODACTYL: {x: 260, y: 2},
-  //   RESTART: {x: 2, y: 2},
-  //   TEXT_SPRITE: {x: 1294, y: 2},
-  //   TREX: {x: 1678, y: 2},
-  //   STAR: {x: 1276, y: 2}
-  // }
   HDPI: {
+    BGP: {x: 2015, y: 21},
+    OSPF: {x: 2126, y: 21},
+
     CACTUS_LARGE: {x: 652, y: 2},
     CACTUS_SMALL: {x: 446, y: 2},
     CLOUD: {x: 166, y: 2},
@@ -191,7 +182,7 @@ Runner.spriteDefinition = {
     PTERODACTYL: {x: 260, y: 2},
     RESTART: {x: 2, y: 2},
     TEXT_SPRITE: {x: 1294, y: 2},
-    TREX: {x: 1678, y: 2},
+    TREX: {x: 1720, y: 1},
     STAR: {x: 1276, y: 2}
   }
 };
@@ -379,13 +370,13 @@ Runner.prototype = {
     this.canvasCtx.fillStyle = '#f7f7f7';
     this.canvasCtx.fill();
     Runner.updateCanvasScaling(this.canvas);
-
+    
     // Horizon contains clouds, obstacles and the ground.
     this.horizon = new Horizon(this.canvas, this.spriteDef, this.dimensions, this.config.GAP_COEFFICIENT);
 
     // Distance meter
     this.distanceMeter = new DistanceMeter(this.canvas,   this.spriteDef.TEXT_SPRITE, this.dimensions.WIDTH);
-
+    
     // Draw t-rex
     this.tRex = new Trex(this.canvas, this.spriteDef.TREX);
 
@@ -567,7 +558,7 @@ Runner.prototype = {
 
       // Check for collisions.
       var collision = hasObstacles &&
-          checkForCollision(this.horizon.obstacles[0], this.tRex);
+          checkForCollision(this.horizon.obstacles[0], this.tRex, this.canvasCtx);
 
       if (!collision) {
         this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
@@ -979,169 +970,3 @@ Runner.updateCanvasScaling = function(canvas, opt_width, opt_height) {
   return false;
 };
 
-
-/**
- * Get random number.
- * @param {number} min
- * @param {number} max
- * @param {number}
- */
-function getRandomNum(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-
-/**
- * Vibrate on mobile devices.
- * @param {number} duration Duration of the vibration in milliseconds.
- */
-function vibrate(duration) {
-  if (IS_MOBILE && window.navigator.vibrate) {
-    window.navigator.vibrate(duration);
-  }
-}
-
-
-/**
- * Create canvas element.
- * @param {HTMLElement} container Element to append canvas to.
- * @param {number} width
- * @param {number} height
- * @param {string} opt_classname
- * @return {HTMLCanvasElement}
- */
-function createCanvas(container, width, height, opt_classname) {
-  var canvas = document.createElement('canvas');
-  canvas.className = opt_classname ? Runner.classes.CANVAS + ' ' +
-      opt_classname : Runner.classes.CANVAS;
-  canvas.width = width;
-  canvas.height = height;
-  container.appendChild(canvas);
-
-  return canvas;
-}
-
-
-/**
- * Decodes the base 64 audio to ArrayBuffer used by Web Audio.
- * @param {string} base64String
- */
-function decodeBase64ToArrayBuffer(base64String) {
-  var len = (base64String.length / 4) * 3;
-  var str = atob(base64String);
-  var arrayBuffer = new ArrayBuffer(len);
-  var bytes = new Uint8Array(arrayBuffer);
-
-  for (var i = 0; i < len; i++) {
-    bytes[i] = str.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
-
-
-/**
- * Return the current timestamp.
- * @return {number}
- */
-function getTimeStamp() {
-  return IS_IOS ? new Date().getTime() : performance.now();
-}
-
-
-//******************************************************************************
-
-
-/**
- * Game over panel.
- * @param {!HTMLCanvasElement} canvas
- * @param {Object} textImgPos
- * @param {Object} restartImgPos
- * @param {!Object} dimensions Canvas dimensions.
- * @constructor
- */
-function GameOverPanel(canvas, textImgPos, restartImgPos, dimensions) {
-  this.canvas = canvas;
-  this.canvasCtx = canvas.getContext('2d');
-  this.canvasDimensions = dimensions;
-  this.textImgPos = textImgPos;
-  this.restartImgPos = restartImgPos;
-  this.draw();
-};
-
-
-/**
- * Dimensions used in the panel.
- * @enum {number}
- */
-GameOverPanel.dimensions = {
-  TEXT_X: 0,
-  TEXT_Y: 13,
-  TEXT_WIDTH: 191,
-  TEXT_HEIGHT: 11,
-  RESTART_WIDTH: 36,
-  RESTART_HEIGHT: 32
-};
-
-
-GameOverPanel.prototype = {
-  /**
-   * Update the panel dimensions.
-   * @param {number} width New canvas width.
-   * @param {number} opt_height Optional new canvas height.
-   */
-  updateDimensions: function(width, opt_height) {
-    this.canvasDimensions.WIDTH = width;
-    if (opt_height) {
-      this.canvasDimensions.HEIGHT = opt_height;
-    }
-  },
-
-  /**
-   * Draw the panel.
-   */
-  draw: function() {
-    var dimensions = GameOverPanel.dimensions;
-
-    var centerX = this.canvasDimensions.WIDTH / 2;
-
-    // Game over text.
-    var textSourceX = dimensions.TEXT_X;
-    var textSourceY = dimensions.TEXT_Y;
-    var textSourceWidth = dimensions.TEXT_WIDTH;
-    var textSourceHeight = dimensions.TEXT_HEIGHT;
-
-    var textTargetX = Math.round(centerX - (dimensions.TEXT_WIDTH / 2));
-    var textTargetY = Math.round((this.canvasDimensions.HEIGHT - 25) / 3);
-    var textTargetWidth = dimensions.TEXT_WIDTH;
-    var textTargetHeight = dimensions.TEXT_HEIGHT;
-
-    var restartSourceWidth = dimensions.RESTART_WIDTH;
-    var restartSourceHeight = dimensions.RESTART_HEIGHT;
-    var restartTargetX = centerX - (dimensions.RESTART_WIDTH / 2);
-    var restartTargetY = this.canvasDimensions.HEIGHT / 2;
-
-    if (IS_HIDPI) {
-      textSourceY *= 2;
-      textSourceX *= 2;
-      textSourceWidth *= 2;
-      textSourceHeight *= 2;
-      restartSourceWidth *= 2;
-      restartSourceHeight *= 2;
-    }
-
-    textSourceX += this.textImgPos.x;
-    textSourceY += this.textImgPos.y;
-
-    // Game over text from sprite.
-    this.canvasCtx.drawImage(Runner.imageSprite,
-        textSourceX, textSourceY, textSourceWidth, textSourceHeight,
-        textTargetX, textTargetY, textTargetWidth, textTargetHeight);
-
-    // Restart button.
-    this.canvasCtx.drawImage(Runner.imageSprite,
-        this.restartImgPos.x, this.restartImgPos.y,
-        restartSourceWidth, restartSourceHeight,
-        restartTargetX, restartTargetY, dimensions.RESTART_WIDTH,
-        dimensions.RESTART_HEIGHT);
-  }
-};

@@ -43,35 +43,35 @@ function Trex(canvas, spritePos) {
 Trex.config = {
   DROP_VELOCITY: -5,
   GRAVITY: 0.6,
-  HEIGHT: 47,
-  HEIGHT_DUCK: 25,
+  HEIGHT: 53,
+  HEIGHT_DUCK: 55,
   INIITAL_JUMP_VELOCITY: -10,
   INTRO_DURATION: 1500,
   MAX_JUMP_HEIGHT: 30,
   MIN_JUMP_HEIGHT: 30,
   SPEED_DROP_COEFFICIENT: 3,
-  SPRITE_WIDTH: 262,
+  // SPRITE_WIDTH: 262,
   START_X_POS: 50,
-  WIDTH: 44,
-  WIDTH_DUCK: 59
+  WIDTH: 92,
+  WIDTH_DUCK: 141
 };
 
 
 /**
+ * Нужно несколько чтобы повторять границы спрайта, а не чекать тупо прямоугольник
  * Used in collision detection.
  * @type {Array<CollisionBox>}
  */
 Trex.collisionBoxes = {
   DUCKING: [
-    new CollisionBox(1, 18, 55, 25)
+    new CollisionBox(20, 28, 121, 6),
+    new CollisionBox(0, 35, 119, 6)
   ],
   RUNNING: [
-    new CollisionBox(22, 0, 17, 16),
-    new CollisionBox(1, 18, 30, 9),
-    new CollisionBox(10, 35, 14, 8),
-    new CollisionBox(1, 24, 29, 5),
-    new CollisionBox(5, 30, 21, 4),
-    new CollisionBox(9, 34, 15, 4)
+    new CollisionBox(11, 32, 62, 15),
+    // new CollisionBox(7, 20, 8, 11),
+    new CollisionBox(16, 14, 67, 17),
+    // new CollisionBox(26, 7, 36, 6),
   ]
 };
 
@@ -105,11 +105,11 @@ Trex.animFrames = {
     msPerFrame: 1000 / 3
   },
   RUNNING: {
-    frames: [88, 132],
-    msPerFrame: 1000 / 12
+    frames: [0],
+    // msPerFrame: 1000 / 12
   },
   CRASHED: {
-    frames: [220],
+    frames: [447],
     msPerFrame: 1000 / 60
   },
   JUMPING: {
@@ -117,7 +117,7 @@ Trex.animFrames = {
     msPerFrame: 1000 / 60
   },
   DUCKING: {
-    frames: [264, 323],
+    frames: [289],
     msPerFrame: 1000 / 8
   }
 };
@@ -159,7 +159,7 @@ Trex.prototype = {
     if (opt_status) {
       this.status = opt_status;
       this.currentFrame = 0;
-      this.msPerFrame = Trex.animFrames[opt_status].msPerFrame;
+      // this.msPerFrame = Trex.animFrames[opt_status].msPerFrame;
       this.currentAnimFrames = Trex.animFrames[opt_status].frames;
 
       if (opt_status == Trex.status.WAITING) {
@@ -177,15 +177,16 @@ Trex.prototype = {
     if (this.status == Trex.status.WAITING) {
       this.blink(getTimeStamp());
     } else {
+      // рисует картинку дино
       this.draw(this.currentAnimFrames[this.currentFrame], 0);
     }
 
-    // Update the frame position.
-    if (this.timer >= this.msPerFrame) {
-      this.currentFrame = this.currentFrame ==
-          this.currentAnimFrames.length - 1 ? 0 : this.currentFrame + 1;
-      this.timer = 0;
-    }
+    // // Update the frame position.
+    // if (this.timer >= this.msPerFrame) {
+    //   this.currentFrame = this.currentFrame ==
+    //       this.currentAnimFrames.length - 1 ? 0 : this.currentFrame + 1;
+    //   this.timer = 0;
+    // }
 
     // Speed drop becomes duck if the down key is still being pressed.
     if (this.speedDrop && this.yPos == this.groundYPos) {
@@ -204,7 +205,8 @@ Trex.prototype = {
     var sourceY = y;
     var sourceWidth = this.ducking && this.status != Trex.status.CRASHED ?
         this.config.WIDTH_DUCK : this.config.WIDTH;
-    var sourceHeight = this.config.HEIGHT;
+    var sourceHeight = this.ducking && this.status != Trex.status.CRASHED ?
+        this.config.HEIGHT_DUCK : this.config.HEIGHT;
     var outputHeight = sourceHeight;
 
     if (IS_HIDPI) {

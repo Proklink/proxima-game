@@ -15,17 +15,19 @@ function checkForCollision(obstacle, tRex, opt_canvasCtx) {
   var tRexBox = new CollisionBox(
       tRex.xPos + 1,
       tRex.yPos + 1,
-      tRex.config.WIDTH - 2,
-      tRex.config.HEIGHT - 2);
+      tRex.ducking ? tRex.config.WIDTH_DUCK : tRex.config.WIDTH,
+      tRex.ducking ? tRex.config.HEIGHT_DUCK : tRex.config.HEIGHT);
 
   var obstacleBox = new CollisionBox(
       obstacle.xPos + 1,
       obstacle.yPos + 1,
       obstacle.typeConfig.width * obstacle.size - 2,
       obstacle.typeConfig.height - 2);
+  
+  var debug = false;
 
   // Debug outer box
-  if (opt_canvasCtx) {
+  if (opt_canvasCtx && debug) {
     drawCollisionBoxes(opt_canvasCtx, tRexBox, obstacleBox);
   }
 
@@ -46,7 +48,8 @@ function checkForCollision(obstacle, tRex, opt_canvasCtx) {
         var crashed = boxCompare(adjTrexBox, adjObstacleBox);
 
         // Draw boxes for debug.
-        if (opt_canvasCtx) {
+        if (opt_canvasCtx && debug) {
+          // opt_canvasCtx.clearRect(0, 0, Runner.defaultDimensions.WIDTH, Runner.defaultDimensions.HEIGHT);
           drawCollisionBoxes(opt_canvasCtx, adjTrexBox, adjObstacleBox);
         }
 
@@ -56,6 +59,17 @@ function checkForCollision(obstacle, tRex, opt_canvasCtx) {
       }
     }
   }
+
+  //показывает collisionBoxes
+  // var tRexCollisionBoxes = tRex.ducking ?
+  //       Trex.collisionBoxes.DUCKING : Trex.collisionBoxes.RUNNING;
+  // for (var t = 0; t < tRexCollisionBoxes.length; t++) {
+  
+  //   var adjTrexBox = createAdjustedCollisionBox(tRexCollisionBoxes[t], tRexBox);
+
+  //   // opt_canvasCtx.clearRect(0, 0, Runner.defaultDimensions.WIDTH, Runner.defaultDimensions.HEIGHT);
+  //   drawCollisionBoxes(opt_canvasCtx, adjTrexBox, obstacleBox);
+  // }
   return false;
 };
 
@@ -118,8 +132,8 @@ function boxCompare(tRexBox, obstacleBox) {
 
 /**
  * Collision box object.
- * @param {number} x X position.
- * @param {number} y Y Position.
+ * @param {number} x X position от начала спрайта.
+ * @param {number} y Y Position  от начала спрайта.
  * @param {number} w Width.
  * @param {number} h Height.
  */

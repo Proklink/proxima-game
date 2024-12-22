@@ -284,10 +284,12 @@ Horizon.prototype = {
 
     // Check for multiples of the same type of obstacle.
     // Also check obstacle is available at current speed.
-    if (this.duplicateObstacleCheck(obstacleType.type) ||
-        currentSpeed < obstacleType.minSpeed) {
+    if (this.duplicateObstacleCheck(obstacleType.type) || currentSpeed < obstacleType.minSpeed)
+    {
       this.addNewObstacle(currentSpeed);
-    } else {
+    }
+    else
+    {
       var obstacleSpritePos = this.spritePos[obstacleType.type];
 
       this.obstacles.push(new Obstacle(this.canvasCtx, obstacleType,
